@@ -83,6 +83,14 @@ project.ext.react = [
 
 apply from: "../../node_modules/react-native/react.gradle"
 
+/*** for vector icons ***/
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
+project.ext.vectoricons = [
+    iconFontNames: ['MaterialIcons.ttf', 'EvilIcons.ttf', 'AntDesign.ttf', 'Entypo.ttf', 'Feather.ttf', 'FontAwesome.ttf', 'Fontisto.ttf', 'Foundation.ttf', 'Ionicons.ttf', 'MaterialCommunityIcons.ttf', 'Octicons.ttf', 'Zocial.ttf', 'SimpleLineIcons.ttf']
+]
+
 /**
  * Set this to true to create two separate APKs instead of one:
  *   - An APK that only works on ARM devices
