@@ -17,7 +17,15 @@ export default function Splash(props) {
           props.navigation.replace('TodoList');
         }}
       />
-      <Text style={{marginTop: 120}}>ToT</Text>
+      <Text
+        style={{
+          marginTop: 120,
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: COLORS.white,
+        }}>
+        ToT
+      </Text>
     </SafeAreaView>
   );
 }
@@ -25,7 +33,7 @@ export default function Splash(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.primary_green,
+    backgroundColor: COLORS.yellow,
     justifyContent: 'center',
     alignItems: 'center',
   },
