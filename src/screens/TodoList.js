@@ -15,75 +15,72 @@ import Animated, {
   Easing,
   withTiming,
 } from 'react-native-reanimated';
+import Modal from 'react-native-modal';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {COLORS} from '../components/shared/colors';
 
 export default function TodoList(props) {
   const [createTaskModalOpen, setCreateTaskModalOpen] = useState(false);
 
-  const offset = useSharedValue(0);
-  const rotation = useSharedValue(0);
-
-  useEffect(() => {
-    if (!createTaskModalOpen) {
-      offset.value = withTiming(0, {
-        duration: 1000,
-        easing: Easing.out(Easing.exp),
-      });
-
-      rotation.value = withTiming(0, {duration: 1000});
-    } else {
-      offset.value = withTiming(-300, {
-        duration: 1000,
-        easing: Easing.out(Easing.exp),
-      });
-
-      rotation.value = withTiming(-45, {duration: 1000});
-    }
-  }, [createTaskModalOpen]);
-
-  /********** Animated Components style starts ********/
-
-  const animatedAddStyles = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          translateY: withSpring(offset.value),
-        },
-      ],
-    };
-  });
-  const animatedPlusToCrossStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{rotateZ: `${rotation.value}deg`}],
-    };
-  });
-
-  /********** Animated Components style ends ********/
-
   const handleCreateTaskModal = () => {
     setCreateTaskModalOpen(!createTaskModalOpen);
   };
 
+  const createModal = () => {
+    return (
+      <Modal
+        isVisible={createTaskModalOpen}
+        animationIn="slideInUp"
+        avoidKeyboard
+        backdropColor={COLORS.black}
+        onSwipeComplete={() => setCreateTaskModalOpen(false)}
+        swipeDirection="down"
+        useNativeDriverForBackdrop
+        animationInTiming={600}
+        animationOutTiming={600}
+        backdropTransitionInTiming={400}
+        backdropTransitionOutTiming={400}
+        style={{justifyContent: 'flex-end', margin: 0}}>
+        <View
+          style={{
+            width: 30,
+            height: 6,
+            backgroundColor: COLORS.white,
+            alignSelf: 'center',
+            marginBottom: 10,
+            borderRadius: 20,
+          }}></View>
+        <View
+          style={{
+            height: '70%',
+            backgroundColor: COLORS.white,
+            borderTopLeftRadius: 40,
+            borderTopRightRadius: 40,
+          }}>
+          <Text>I am the modal content!</Text>
+        </View>
+      </Modal>
+    );
+  };
+
   return (
     <SafeAreaView style={{flex: 1}}>
+      {createModal()}
+
       <Text style={{alignSelf: 'center', marginTop: 15}}>All Tasks</Text>
 
-      {/************** Animated Add Component starts ************/}
+      {/************** Add Component starts ************/}
 
-      <Animated.View style={[styles.addBtn, animatedAddStyles]}>
-        <TouchableOpacity onPress={() => handleCreateTaskModal()}>
-          <Animated.Text
-            style={[
-              animatedPlusToCrossStyle,
-              {fontSize: 24, fontWeight: 'bold', color: COLORS.white},
-            ]}>
+      <View style={styles.addBtn}>
+        <TouchableOpacity onPress={handleCreateTaskModal}>
+          <Text style={{fontSize: 24, fontWeight: 'bold', color: COLORS.white}}>
             +
-          </Animated.Text>
+          </Text>
         </TouchableOpacity>
-      </Animated.View>
+      </View>
 
-      {/************** Animated Add Component ends ************/}
+      {/************** Add Component ends ************/}
     </SafeAreaView>
   );
 }
