@@ -11,6 +11,28 @@ import {COLORS} from '../shared/colors';
 
 export default function CreateNewTask() {
   const [title, setTitle] = useState('');
+  const [errors, setErrors] = useState({title: ''});
+
+  const validateForm = () => {
+    let formIsValid = true;
+
+    if (title.trim() === '') {
+      setErrors({...errors, title: 'Task name can not be empty'});
+      formIsValid = false;
+    }
+
+    setTimeout(() => {
+      setErrors({...errors, title: ''});
+    }, 2000);
+
+    return formIsValid;
+  };
+
+  const handleSubmit = () => {
+    if (validateForm()) {
+      console.log('done');
+    }
+  };
 
   return (
     <>
@@ -18,7 +40,13 @@ export default function CreateNewTask() {
       <View style={styles.modalCard}>
         <View style={styles.rowViewSpaceBetween}>
           <View style={{width: '70%'}}>
-            <Text style={styles.taskName}>Task name</Text>
+            <Text
+              style={[
+                styles.taskName,
+                {color: errors?.title !== '' ? COLORS.alert_red : COLORS.grey_500},
+              ]}>
+              {errors?.title !== '' ? errors.title : 'Task name'}
+            </Text>
             <TextInput
               placeholder="write here ..."
               selectionColor={COLORS.grey_500}
@@ -27,7 +55,10 @@ export default function CreateNewTask() {
               style={styles.inputBox}
             />
           </View>
-          <TouchableOpacity activeOpacity={0.5} style={styles.doneBtn}>
+          <TouchableOpacity
+            onPress={handleSubmit}
+            activeOpacity={0.5}
+            style={styles.doneBtn}>
             <Text style={styles.doneText}>Done</Text>
           </TouchableOpacity>
         </View>
@@ -56,7 +87,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: -10,
     marginLeft: 3,
-    fontSize: 12,
+    fontSize: 11,
   },
   inputBox: {
     fontSize: 18,

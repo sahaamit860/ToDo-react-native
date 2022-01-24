@@ -4,6 +4,7 @@ export const COLORS = {
   bgFill_200: '#F3F3F1',
   yellow: '#EDB80E',
   orange: '#FF9258',
+  alert_red: '#913838',
   white: '#FFFFFF',
   black: '#2F343A',
   black_100: '#363636',
