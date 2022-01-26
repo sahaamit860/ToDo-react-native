@@ -42,6 +42,7 @@ export default function CreateNewTask(props) {
         tempTaskList.push({
           id: randomAlphaNumericGenerator(8) + Date.now(),
           taskName: title,
+          createTime: Date.now(),
         });
         AsyncStorage.setItem('taskList', JSON.stringify(tempTaskList), () => {
           props.closeModal();
