@@ -1,12 +1,18 @@
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Modal from 'react-native-modal';
 
 import {COLORS} from '../shared/colors';
 import CreateNewTask from './CreateNewTask';
 
-export default function AddFloatingButton() {
+export default function AddFloatingButton(props) {
   const [createTaskModalOpen, setCreateTaskModalOpen] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      closeModal();
+    };
+  }, []);
 
   const handleCreateTaskModal = () => {
     setCreateTaskModalOpen(!createTaskModalOpen);
@@ -27,9 +33,16 @@ export default function AddFloatingButton() {
         backdropTransitionInTiming={400}
         backdropTransitionOutTiming={400}
         style={{justifyContent: 'flex-end', margin: 0}}>
-        <CreateNewTask />
+        <CreateNewTask closeModal={closeModal} />
       </Modal>
     );
+  };
+
+  const closeModal = () => {
+    setCreateTaskModalOpen(false);
+    setTimeout(() => {
+      props.getList();
+    }, 500);
   };
 
   return (

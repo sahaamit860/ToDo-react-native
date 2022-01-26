@@ -5,11 +5,13 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {COLORS} from '../shared/colors';
+import {randomAlphaNumericGenerator} from '../shared/commonFunctions';
 
-export default function CreateNewTask() {
+export default function CreateNewTask(props) {
   const [title, setTitle] = useState('');
   const [errors, setErrors] = useState({title: ''});
 
@@ -18,20 +20,43 @@ export default function CreateNewTask() {
 
     if (title.trim() === '') {
       setErrors({...errors, title: 'Task name can not be empty'});
+      setTimeout(() => {
+        setErrors({...errors, title: ''});
+      }, 2000);
       formIsValid = false;
     }
-
-    setTimeout(() => {
-      setErrors({...errors, title: ''});
-    }, 2000);
 
     return formIsValid;
   };
 
   const handleSubmit = () => {
     if (validateForm()) {
-      console.log('done');
+      updateList();
     }
+  };
+
+  const updateList = () => {
+    AsyncStorage.getItem('taskList').then(value => {
+      if (value) {
+        let tempTaskList = JSON.parse(value);
+        tempTaskList.push({
+          id: randomAlphaNumericGenerator(8) + Date.now(),
+          taskName: title,
+        });
+        AsyncStorage.setItem('taskList', JSON.stringify(tempTaskList), () => {
+          props.closeModal();
+        });
+      } else {
+        let arr = [];
+        arr.push({
+          id: randomAlphaNumericGenerator(8) + Date.now(),
+          taskName: title,
+        });
+        AsyncStorage.setItem('taskList', JSON.stringify(arr), () => {
+          props.closeModal();
+        });
+      }
+    });
   };
 
   return (
@@ -43,7 +68,10 @@ export default function CreateNewTask() {
             <Text
               style={[
                 styles.taskName,
-                {color: errors?.title !== '' ? COLORS.alert_red : COLORS.grey_500},
+                {
+                  color:
+                    errors?.title !== '' ? COLORS.alert_red : COLORS.grey_500,
+                },
               ]}>
               {errors?.title !== '' ? errors.title : 'Task name'}
             </Text>
