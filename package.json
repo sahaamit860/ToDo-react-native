@@ -17,6 +17,7 @@
     "lodash": "^4.17.21",
     "lottie-ios": "^3.2.3",
     "lottie-react-native": "^5.0.1",
+    "moment": "^2.29.1",
     "react": "17.0.2",
     "react-native": "0.66.4",
     "react-native-gesture-handler": "^2.1.1",
