@@ -1,84 +1,94 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  FlatList,
   SafeAreaView,
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import Animated, {
-  SlideInLeft,
-  SlideInRight,
-  useAnimatedStyle,
-  withSpring,
-  useSharedValue,
-  Easing,
-  withTiming,
+  Layout,
+  LightSpeedInLeft,
+  LightSpeedOutRight,
 } from 'react-native-reanimated';
-import Modal from 'react-native-modal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {cloneDeep} from 'lodash';
 
+import AddFloatingButton from '../components/common/AddFloatingButton';
 import {COLORS} from '../components/shared/colors';
+import Typography from '../components/shared/Typography';
+
+const moment = require('moment');
 
 export default function TodoList(props) {
-  const [createTaskModalOpen, setCreateTaskModalOpen] = useState(false);
+  const [taskList, setTaskList] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const handleCreateTaskModal = () => {
-    setCreateTaskModalOpen(!createTaskModalOpen);
+  useEffect(() => {
+    getList();
+  }, []);
+
+  const getList = () => {
+    setRefreshing(true);
+    AsyncStorage.getItem('taskList').then(value => {
+      setRefreshing(false);
+      let tempTaskList = JSON.parse(value);
+      setTaskList(tempTaskList.reverse());
+    });
   };
 
-  const createModal = () => {
+  const removeList = index => {
+    let tempTaskList = cloneDeep(taskList);
+    tempTaskList.splice(index, 1);
+    setTaskList(tempTaskList);
+    setTimeout(() => {
+      AsyncStorage.setItem('taskList', JSON.stringify(tempTaskList.reverse()));
+    }, 200);
+  };
+
+  const renderListItem = (item, index) => {
     return (
-      <Modal
-        isVisible={createTaskModalOpen}
-        animationIn="slideInUp"
-        avoidKeyboard
-        backdropColor={COLORS.black}
-        onSwipeComplete={() => setCreateTaskModalOpen(false)}
-        swipeDirection="down"
-        useNativeDriverForBackdrop
-        animationInTiming={600}
-        animationOutTiming={600}
-        backdropTransitionInTiming={400}
-        backdropTransitionOutTiming={400}
-        style={{justifyContent: 'flex-end', margin: 0}}>
-        <View
-          style={{
-            width: 30,
-            height: 6,
-            backgroundColor: COLORS.white,
-            alignSelf: 'center',
-            marginBottom: 10,
-            borderRadius: 20,
-          }}></View>
-        <View
-          style={{
-            height: '70%',
-            backgroundColor: COLORS.white,
-            borderTopLeftRadius: 40,
-            borderTopRightRadius: 40,
-          }}>
-          <Text>I am the modal content!</Text>
+      <Animated.View
+        style={[styles.listCard]}
+        entering={LightSpeedInLeft.duration(500)
+          .delay(index * 100)
+          .springify()}
+        exiting={LightSpeedOutRight.duration(500).springify()}
+        layout={Layout.springify()}>
+        <View>
+          <Text style={[Typography.Button_Lead]}>{item.taskName}</Text>
+          <Text style={[Typography.Note2, {color: COLORS.grey_400}]}>
+            created on{' '}
+            {moment.unix(item.createTime / 1000).format('Do MMM YYYY')}
+          </Text>
         </View>
-      </Modal>
+
+        <TouchableOpacity onPress={() => removeList(index)} style={styles.bin}>
+          <Ionicons name="trash-outline" size={18} color={COLORS.orange} />
+        </TouchableOpacity>
+      </Animated.View>
     );
   };
 
   return (
     <SafeAreaView style={{flex: 1}}>
-      {createModal()}
-
-      <Text style={{alignSelf: 'center', marginTop: 15}}>All Tasks</Text>
+      <Animated.View style={{marginTop: 20}} layout={Layout.springify()}>
+        <FlatList
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={getList} />
+          }
+          data={taskList}
+          keyExtractor={item => item.id}
+          renderItem={({item, index}) => renderListItem(item, index)}
+        />
+      </Animated.View>
 
       {/************** Add Component starts ************/}
 
-      <View style={styles.addBtn}>
-        <TouchableOpacity onPress={handleCreateTaskModal}>
-          <Text style={{fontSize: 24, fontWeight: 'bold', color: COLORS.white}}>
-            +
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <AddFloatingButton getList={getList} />
 
       {/************** Add Component ends ************/}
     </SafeAreaView>
@@ -86,24 +96,31 @@ export default function TodoList(props) {
 }
 
 const styles = StyleSheet.create({
-  addBtn: {
-    position: 'absolute',
-    bottom: 50,
-    right: 30,
-    borderRadius: 10,
-    height: 40,
-    width: 40,
+  listCard: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.white,
+    width: '90%',
+    alignSelf: 'center',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.yellow,
-    shadowColor: COLORS.yellow,
+    justifyContent: 'space-between',
+    marginVertical: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    shadowColor: COLORS.black,
     shadowOffset: {
       width: 0,
-      height: 6,
+      height: 1,
     },
-    shadowOpacity: 0.37,
-    shadowRadius: 7.49,
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
 
-    elevation: 12,
+    elevation: 3,
+  },
+  bin: {
+    height: 30,
+    width: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
