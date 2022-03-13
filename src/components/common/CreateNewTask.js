@@ -4,6 +4,7 @@ import {
   TextInput,
   View,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -81,7 +82,13 @@ export default function CreateNewTask(props) {
               selectionColor={COLORS.grey_500}
               onChangeText={value => setTitle(value)}
               value={title}
-              style={styles.inputBox}
+              style={[
+                styles.inputBox,
+                {
+                  marginTop: Platform.OS === 'ios' ? 10 : 0,
+                  marginLeft: Platform.OS === 'ios' ? 4 : 0,
+                },
+              ]}
             />
           </View>
           <TouchableOpacity
